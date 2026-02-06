@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Last Second Rescue</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07080d;
+      --panel: rgba(17, 21, 34, 0.85);
+      --accent: #ff2b4a;
+      --accent-soft: rgba(255, 43, 74, 0.3);
+      --good: #2bff88;
+      --warn: #ffd453;
+      --text: #eef2ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #1e2033 0%, var(--bg) 55%);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .stage {
+      width: min(1100px, 92vw);
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .scene,
+    .hud {
+      background: var(--panel);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 20px 45px rgba(3, 6, 18, 0.6);
+      backdrop-filter: blur(12px);
+    }
+
+    .scene {
+      position: relative;
+      overflow: hidden;
+      min-height: 420px;
+    }
+
+    .pulse {
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle, rgba(255, 43, 74, 0.2), transparent 60%);
+      opacity: 0.2;
+      animation: pulse 2.2s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(0.95); opacity: 0.15; }
+      50% { transform: scale(1.05); opacity: 0.35; }
+    }
+
+    .guy {
+      position: absolute;
+      left: 50%;
+      top: 58%;
+      transform: translate(-50%, -50%);
+      width: 180px;
+      height: 260px;
+      background: linear-gradient(160deg, #363c56, #1b1f30);
+      border-radius: 90px 90px 60px 60px;
+      border: 2px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 18px;
+      transition: transform 0.2s ease;
+    }
+
+    .guy.shake {
+      animation: shake 0.25s infinite;
+    }
+
+    @keyframes shake {
+      0% { transform: translate(-50%, -50%) rotate(-1deg); }
+      50% { transform: translate(-50%, -50%) rotate(1deg); }
+      100% { transform: translate(-50%, -50%) rotate(-1deg); }
+    }
+
+    .head {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      background: #f5d2b8;
+      position: relative;
+      box-shadow: inset 0 -6px 0 rgba(0, 0, 0, 0.08);
+    }
+
+    .eyes {
+      display: flex;
+      gap: 16px;
+      position: absolute;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .eyes span {
+      width: 10px;
+      height: 14px;
+      border-radius: 6px;
+      background: #1c1a1a;
+      transition: transform 0.2s ease;
+    }
+
+    .mouth {
+      position: absolute;
+      width: 26px;
+      height: 8px;
+      border-radius: 12px;
+      background: #712020;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      transition: all 0.2s ease;
+    }
+
+    .guy.panic .eyes span {
+      transform: scaleY(1.4);
+    }
+
+    .guy.panic .mouth {
+      width: 38px;
+      height: 18px;
+      background: #b32222;
+    }
+
+    .body {
+      width: 120px;
+      height: 130px;
+      margin-top: 16px;
+      background: linear-gradient(160deg, #4c5b93, #2c3558);
+      border-radius: 30px;
+    }
+
+    .status {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .meter {
+      flex: 1;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .meter span {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, var(--good), var(--warn), var(--accent));
+      transform-origin: left;
+      transition: transform 0.2s ease;
+    }
+
+    .meter-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.6;
+      min-width: 110px;
+    }
+
+    .danger-card {
+      background: rgba(255, 43, 74, 0.1);
+      border: 1px solid rgba(255, 43, 74, 0.3);
+      border-radius: 16px;
+      padding: 16px;
+      margin-top: 24px;
+      min-height: 110px;
+    }
+
+    .danger-card h3 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+    }
+
+    .danger-card p {
+      margin: 0;
+      opacity: 0.85;
+      line-height: 1.4;
+    }
+
+    .hud h2 {
+      margin-top: 0;
+      font-size: 1.6rem;
+    }
+
+    .actions {
+      display: grid;
+      gap: 12px;
+    }
+
+    .action-btn {
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+    }
+
+    .action-btn span {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      opacity: 0.6;
+      margin-top: 4px;
+    }
+
+    .action-btn:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .action-btn.correct {
+      border-color: var(--good);
+      box-shadow: 0 0 0 1px rgba(43, 255, 136, 0.4);
+    }
+
+    .action-btn.wrong {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(255, 43, 74, 0.4);
+    }
+
+    .footer {
+      margin-top: 18px;
+      font-size: 0.85rem;
+      opacity: 0.6;
+      line-height: 1.5;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(7, 8, 13, 0.85);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .panel {
+      text-align: center;
+      max-width: 320px;
+      padding: 22px;
+      background: rgba(9, 11, 18, 0.9);
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.55);
+    }
+
+    .panel button {
+      margin-top: 12px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .flash {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 43, 74, 0.18);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .flash.active {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <section class="scene">
+      <div class="pulse"></div>
+      <div class="flash" id="flash"></div>
+      <div class="status">
+        <div>
+          <div class="meter-label">Alive chance</div>
+          <div class="meter"><span id="aliveMeter"></span></div>
+        </div>
+        <div>
+          <div class="meter-label">Seconds saved</div>
+          <div id="score" class="meter-label">0</div>
+        </div>
+      </div>
+      <div class="guy" id="guy">
+        <div class="head">
+          <div class="eyes"><span></span><span></span></div>
+          <div class="mouth"></div>
+        </div>
+        <div class="body"></div>
+      </div>
+      <div class="danger-card">
+        <h3 id="dangerTitle">Waiting...</h3>
+        <p id="dangerText">Keep him alive. Something can go wrong at any second.</p>
+      </div>
+    </section>
+
+    <section class="hud">
+      <h2>Stop him from dying.</h2>
+      <p>
+        Every few seconds a deadly event happens. Pick the right response fast before the
+        timer hits zero.
+      </p>
+      <div class="actions" id="actions"></div>
+      <div class="footer">
+        Keyboard shortcuts: press <strong>1</strong>, <strong>2</strong>, or <strong>3</strong>
+        to trigger the matching action.
+      </div>
+    </section>
+  </main>
+
+  <div class="overlay active" id="startOverlay">
+    <div class="panel">
+      <h3>Last Second Rescue</h3>
+      <p>Keep him alive as long as possible. You fail once, he dies.</p>
+      <button id="startBtn">Start the rescue</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="gameOverOverlay">
+    <div class="panel">
+      <h3>He didn't make it.</h3>
+      <p id="finalScore">You saved him for 0 seconds.</p>
+      <button id="restartBtn">Try again</button>
+    </div>
+  </div>
+
+  <script>
+    const hazards = [
+      {
+        title: "He starts choking!",
+        text: "Airway blocked. He has seconds before blackout.",
+        options: ["Heimlich thrust", "Pat his back", "Offer water"],
+        answer: 0,
+      },
+      {
+        title: "He slips near a ledge!",
+        text: "He is losing grip and falling.",
+        options: ["Grab his hand", "Yell his name", "Look for help"],
+        answer: 0,
+      },
+      {
+        title: "His heart flutters!",
+        text: "Cardiac rhythm is unstable.",
+        options: ["Start CPR", "Tell him to breathe", "Give him coffee"],
+        answer: 0,
+      },
+      {
+        title: "Live wire sparks!",
+        text: "He is about to touch it.",
+        options: ["Pull him back", "Throw water", "Wait"],
+        answer: 0,
+      },
+      {
+        title: "He starts to faint!",
+        text: "Blood pressure drops suddenly.",
+        options: ["Lay him down", "Spin him", "Give him sugar"],
+        answer: 0,
+      },
+      {
+        title: "Ceiling debris falling!",
+        text: "A beam breaks loose above him.",
+        options: ["Push him aside", "Freeze", "Cover your head"],
+        answer: 0,
+      },
+    ];
+
+    const state = {
+      active: false,
+      aliveChance: 1,
+      score: 0,
+      timeLeft: 1,
+      hazard: null,
+      lastTick: null,
+    };
+
+    const aliveMeter = document.getElementById("aliveMeter");
+    const dangerTitle = document.getElementById("dangerTitle");
+    const dangerText = document.getElementById("dangerText");
+    const actions = document.getElementById("actions");
+    const scoreEl = document.getElementById("score");
+    const guy = document.getElementById("guy");
+    const flash = document.getElementById("flash");
+    const startOverlay = document.getElementById("startOverlay");
+    const gameOverOverlay = document.getElementById("gameOverOverlay");
+    const finalScore = document.getElementById("finalScore");
+
+    const startBtn = document.getElementById("startBtn");
+    const restartBtn = document.getElementById("restartBtn");
+
+    function randomHazard() {
+      return hazards[Math.floor(Math.random() * hazards.length)];
+    }
+
+    function setHazard(hazard) {
+      state.hazard = hazard;
+      state.timeLeft = 4 + Math.random() * 2.5;
+      dangerTitle.textContent = hazard.title;
+      dangerText.textContent = hazard.text;
+
+      actions.innerHTML = "";
+      hazard.options.forEach((option, index) => {
+        const button = document.createElement("button");
+        button.className = "action-btn";
+        button.innerHTML = `${index + 1}. ${option}<span>Press ${index + 1}</span>`;
+        button.addEventListener("click", () => resolveAction(index, button));
+        actions.appendChild(button);
+      });
+
+      guy.classList.add("panic");
+      guy.classList.add("shake");
+    }
+
+    function resolveAction(index, button) {
+      if (!state.active) return;
+      const isCorrect = index === state.hazard.answer;
+      button.classList.add(isCorrect ? "correct" : "wrong");
+      if (isCorrect) {
+        state.aliveChance = Math.min(1, state.aliveChance + 0.15);
+        state.score += Math.floor(state.timeLeft * 2) + 1;
+        flash.classList.add("active");
+        setTimeout(() => flash.classList.remove("active"), 150);
+        setTimeout(() => setHazard(randomHazard()), 400);
+      } else {
+        endGame();
+      }
+    }
+
+    function updateMeters() {
+      aliveMeter.style.transform = `scaleX(${state.aliveChance})`;
+      scoreEl.textContent = `${state.score}`;
+    }
+
+    function tick(timestamp) {
+      if (!state.active) return;
+      if (!state.lastTick) state.lastTick = timestamp;
+      const delta = (timestamp - state.lastTick) / 1000;
+      state.lastTick = timestamp;
+      state.timeLeft -= delta;
+      state.aliveChance = Math.max(0, state.aliveChance - delta * 0.05);
+      updateMeters();
+
+      if (state.timeLeft <= 0 || state.aliveChance <= 0.05) {
+        endGame();
+        return;
+      }
+
+      requestAnimationFrame(tick);
+    }
+
+    function startGame() {
+      state.active = true;
+      state.aliveChance = 1;
+      state.score = 0;
+      state.lastTick = null;
+      startOverlay.classList.remove("active");
+      gameOverOverlay.classList.remove("active");
+      setHazard(randomHazard());
+      updateMeters();
+      requestAnimationFrame(tick);
+    }
+
+    function endGame() {
+      state.active = false;
+      guy.classList.remove("panic");
+      guy.classList.remove("shake");
+      finalScore.textContent = `You saved him for ${state.score} seconds.`;
+      gameOverOverlay.classList.add("active");
+    }
+
+    startBtn.addEventListener("click", startGame);
+    restartBtn.addEventListener("click", startGame);
+
+    document.addEventListener("keydown", (event) => {
+      if (!state.active) return;
+      if (event.key >= "1" && event.key <= "3") {
+        const index = Number(event.key) - 1;
+        const buttons = [...actions.querySelectorAll("button")];
+        const button = buttons[index];
+        if (button) resolveAction(index, button);
+      }
+    });
+  </script>
+</body>
+</html>
