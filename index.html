@@ -135,6 +135,20 @@
       font-weight: 600;
     }
 
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 8px;
+      font-size: 0.9rem;
+      opacity: 0.85;
+    }
+
+    .stat-row span {
+      font-weight: 600;
+      color: var(--blue);
+    }
+
     .alert {
       margin-top: 16px;
       padding: 14px 16px;
@@ -212,6 +226,11 @@
       transform: scale(1.08);
     }
 
+    .player.shielded {
+      box-shadow: 0 0 25px rgba(76, 194, 255, 0.8);
+      outline: 2px solid rgba(76, 194, 255, 0.8);
+    }
+
     .hazard,
     .pickup {
       position: absolute;
@@ -236,6 +255,30 @@
     .pickup {
       background: linear-gradient(145deg, #64d9ff, #2c7bff);
       box-shadow: 0 0 12px rgba(76, 194, 255, 0.6);
+    }
+
+    .pickup.xp {
+      background: linear-gradient(145deg, #9cff8d, #2e9d3b);
+      box-shadow: 0 0 12px rgba(53, 255, 162, 0.6);
+    }
+
+    .pickup.xp::after {
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .pickup.time {
+      background: linear-gradient(145deg, #c39bff, #6a3cff);
+      box-shadow: 0 0 12px rgba(123, 107, 255, 0.6);
+    }
+
+    .hazard.drone {
+      border-radius: 50%;
+      background: linear-gradient(145deg, #ff8aa5, #ff2b4a);
+    }
+
+    .hazard.spike {
+      border-radius: 6px;
+      transform: rotate(45deg);
     }
 
     .pickup::after {
@@ -351,6 +394,19 @@
       opacity: 1;
     }
 
+    .objective {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(76, 194, 255, 0.08);
+      border: 1px solid rgba(76, 194, 255, 0.35);
+      font-size: 0.9rem;
+    }
+
+    .objective strong {
+      color: var(--blue);
+    }
+
     @media (max-width: 960px) {
       .stage {
         grid-template-columns: 1fr;
@@ -366,19 +422,25 @@
         <div class="status-block">
           <h4>Alive chance</h4>
           <div class="meter"><span id="aliveMeter"></span></div>
+          <div class="stat-row">Energy <span id="energyValue">100</span></div>
         </div>
         <div class="status-block">
           <h4>Seconds saved</h4>
           <div class="value" id="score">0</div>
+          <div class="stat-row">XP <span id="xpValue">0</span></div>
         </div>
         <div class="status-block">
           <h4>Stage</h4>
           <div class="value" id="stageLabel">Baby</div>
+          <div class="stat-row">Age <span id="ageValue">0</span></div>
         </div>
       </div>
       <div class="alert">
         <h3 id="alertTitle">Breathe. Stay alive.</h3>
-        <p id="alertText">Move the baby with WASD or arrow keys. Dodge hazards, collect shields.</p>
+        <p id="alertText">Move with WASD or arrows. Dodge hazards, collect shields, and earn XP.</p>
+      </div>
+      <div class="objective" id="objectiveText">
+        <strong>Objective:</strong> Build a 10 XP streak without taking damage.
       </div>
 
       <div class="arena" id="arena">
@@ -394,20 +456,25 @@
       <h2>Second Chance Sprint</h2>
       <p>
         He starts as a baby. Keep him alive through relentless danger. Move fast, grab
-        shields, and survive long enough to evolve into a hero.
+        shields, harvest XP, and use abilities to survive long enough to evolve into a hero.
       </p>
       <div class="controls">
         <div class="control-card">
           <strong>Move:</strong> Arrow keys / WASD. Holding Shift gives a short burst.
         </div>
         <div class="control-card">
-          <strong>Goal:</strong> Dodge red hazards, collect blue shields to boost survival.
+          <strong>Abilities:</strong> <strong>Space</strong> dash (uses energy), <strong>E</strong>
+          shield (cooldown). Energy refills over time.
+        </div>
+        <div class="control-card">
+          <strong>Goal:</strong> Dodge red hazards, collect blue shields and green XP to grow.
         </div>
       </div>
       <ul class="bonus-list">
         <li>Survive longer to unlock new growth stages and faster movement.</li>
         <li>Hazards speed up every 15 seconds for higher replay intensity.</li>
         <li>Perfect streaks create a rescue pulse that clears nearby threats.</li>
+        <li>Complete rotating objectives for bonus XP and energy refills.</li>
       </ul>
     </section>
   </main>
@@ -433,6 +500,9 @@
     const player = document.getElementById("player");
     const aliveMeter = document.getElementById("aliveMeter");
     const scoreEl = document.getElementById("score");
+    const xpValue = document.getElementById("xpValue");
+    const energyValue = document.getElementById("energyValue");
+    const ageValue = document.getElementById("ageValue");
     const stageLabel = document.getElementById("stageLabel");
     const alertTitle = document.getElementById("alertTitle");
     const alertText = document.getElementById("alertText");
@@ -447,10 +517,16 @@
       active: false,
       score: 0,
       aliveChance: 1,
+      energy: 100,
+      xp: 0,
+      age: 0,
       playerX: 0,
       playerY: 0,
-      velocity: { x: 0, y: 0 },
       speed: 220,
+      dashCooldown: 0,
+      shieldCooldown: 0,
+      shielded: false,
+      slowTime: 0,
       hazards: [],
       pickups: [],
       lastTime: null,
@@ -458,14 +534,26 @@
       pickupTimer: 0,
       difficultyTimer: 0,
       streak: 0,
+      objectiveIndex: 0,
       stage: "baby",
     };
 
     const stages = [
-      { name: "Baby", threshold: 0, className: "baby", speed: 220 },
-      { name: "Toddler", threshold: 15, className: "kid", speed: 250 },
-      { name: "Hero", threshold: 45, className: "hero", speed: 280 },
+      { name: "Baby", threshold: 0, className: "baby", speed: 210, age: 0 },
+      { name: "Toddler", threshold: 20, className: "kid", speed: 240, age: 2 },
+      { name: "Teen", threshold: 50, className: "kid", speed: 265, age: 12 },
+      { name: "Hero", threshold: 90, className: "hero", speed: 290, age: 20 },
+      { name: "Legend", threshold: 140, className: "hero", speed: 320, age: 30 },
     ];
+
+    const objectives = [
+      { text: "Build a 10 XP streak without taking damage.", target: 10, type: "streak" },
+      { text: "Collect 5 shields.", target: 5, type: "shields" },
+      { text: "Dodge 12 hazards in a row.", target: 12, type: "dodge" },
+      { text: "Survive 20 seconds without using dash.", target: 20, type: "nodash" },
+    ];
+
+    const objectiveText = document.getElementById("objectiveText");
 
     const keys = new Set();
 
@@ -483,11 +571,14 @@
 
     function spawnHazard() {
       const hazard = document.createElement("div");
-      hazard.className = "hazard";
+      const variants = ["hazard", "hazard drone", "hazard spike"];
+      const variant = variants[Math.floor(Math.random() * variants.length)];
+      hazard.className = variant;
       const size = 24 + Math.random() * 10;
       hazard.style.width = `${size}px`;
       hazard.style.height = `${size}px`;
-      hazard.dataset.speed = (120 + Math.random() * 100).toFixed(2);
+      const speedBoost = variant.includes("drone") ? 80 : variant.includes("spike") ? 40 : 0;
+      hazard.dataset.speed = (120 + Math.random() * 100 + speedBoost).toFixed(2);
       hazard.style.left = `${Math.random() * (arena.clientWidth - size)}px`;
       hazard.style.top = `-${size}px`;
       arena.appendChild(hazard);
@@ -496,7 +587,17 @@
 
     function spawnPickup() {
       const pickup = document.createElement("div");
-      pickup.className = "pickup";
+      const roll = Math.random();
+      if (roll < 0.55) {
+        pickup.className = "pickup";
+        pickup.dataset.type = "shield";
+      } else if (roll < 0.85) {
+        pickup.className = "pickup xp";
+        pickup.dataset.type = "xp";
+      } else {
+        pickup.className = "pickup time";
+        pickup.dataset.type = "time";
+      }
       const size = 26;
       pickup.style.width = `${size}px`;
       pickup.style.height = `${size}px`;
@@ -518,6 +619,7 @@
       }
       state.speed = stage.speed;
       stageLabel.textContent = stage.name;
+      state.age = stage.age;
     }
 
     function handleMovement(delta) {
@@ -539,11 +641,7 @@
       } else {
         player.classList.remove("boost");
       }
-
-      const maxX = arena.clientWidth - player.clientWidth;
-      const maxY = arena.clientHeight - player.clientHeight;
-      state.playerX = Math.max(0, Math.min(state.playerX, maxX));
-      state.playerY = Math.max(0, Math.min(state.playerY, maxY));
+      clampPlayer();
       updatePlayer();
     }
 
@@ -559,16 +657,18 @@
     function moveObjects(delta) {
       const moveList = (list, isHazard) => {
         list.forEach((item) => {
-          const speed = Number(item.dataset.speed) + (state.score / 2);
+          const slow = state.slowTime > 0 ? 0.5 : 1;
+          const speed = (Number(item.dataset.speed) + (state.score / 2)) * slow;
           const nextTop = item.offsetTop + speed * delta;
           item.style.top = `${nextTop}px`;
           if (nextTop > arena.clientHeight + 40) {
             item.remove();
             item._remove = true;
+            if (isHazard) registerDodge();
           }
           if (checkCollision(item, player)) {
             if (isHazard) {
-              handleHit();
+              handleHit(item);
             } else {
               handlePickup(item);
             }
@@ -595,6 +695,13 @@
     }
 
     function handleHit() {
+      if (state.shielded) {
+        state.shielded = false;
+        player.classList.remove("shielded");
+        flash.classList.add("active");
+        setTimeout(() => flash.classList.remove("active"), 120);
+        return;
+      }
       state.aliveChance -= 0.25;
       state.streak = 0;
       flash.classList.add("active");
@@ -607,8 +714,18 @@
     function handlePickup(pickup) {
       pickup._remove = true;
       pickup.remove();
-      state.aliveChance = Math.min(1, state.aliveChance + 0.18);
-      state.streak += 1;
+      if (pickup.dataset.type === "shield") {
+        state.aliveChance = Math.min(1, state.aliveChance + 0.2);
+        state.streak += 1;
+        addXp(6);
+        registerObjective("shields");
+      } else if (pickup.dataset.type === "xp") {
+        state.streak += 1;
+        addXp(10);
+      } else if (pickup.dataset.type === "time") {
+        state.slowTime = 4;
+        addXp(8);
+      }
       if (state.streak >= 4) {
         rescuePulse();
         state.streak = 0;
@@ -636,9 +753,116 @@
       }, 1600);
     }
 
+    function addXp(amount) {
+      state.xp += amount;
+      if (state.xp >= 100) {
+        state.xp = 0;
+        state.energy = Math.min(100, state.energy + 25);
+        state.aliveChance = Math.min(1, state.aliveChance + 0.1);
+      }
+      registerObjective("streak");
+    }
+
+    function registerDodge() {
+      registerObjective("dodge");
+    }
+
+    function registerObjective(type) {
+      const current = objectives[state.objectiveIndex];
+      if (current.type === "nodash") {
+        return;
+      }
+      if (current.type === "streak" && type === "streak") {
+        current.progress = state.xp;
+        if (current.progress >= current.target) {
+          completeObjective();
+        }
+        return;
+      }
+      if (current.type === type) {
+        current.progress = (current.progress || 0) + 1;
+        if (current.progress >= current.target) {
+          completeObjective();
+        }
+      }
+    }
+
+    function completeObjective() {
+      const current = objectives[state.objectiveIndex];
+      alertTitle.textContent = "Objective cleared!";
+      alertText.textContent = "Bonus energy and XP for smart play.";
+      state.energy = Math.min(100, state.energy + 30);
+      state.aliveChance = Math.min(1, state.aliveChance + 0.15);
+      addXp(20);
+      current.progress = 0;
+      state.objectiveIndex = (state.objectiveIndex + 1) % objectives.length;
+      updateObjectiveText();
+      setTimeout(() => {
+        alertTitle.textContent = "Breathe. Stay alive.";
+        alertText.textContent = "Move the baby with WASD or arrow keys. Dodge hazards, collect shields.";
+      }, 1600);
+    }
+
+    function updateObjectiveText() {
+      const current = objectives[state.objectiveIndex];
+      objectiveText.innerHTML = `<strong>Objective:</strong> ${current.text}`;
+    }
+
+    function useDash() {
+      if (state.dashCooldown > 0 || state.energy < 20) return;
+      state.dashCooldown = 1.4;
+      state.energy -= 20;
+      const boostDuration = 0.2;
+      const boostSpeed = state.speed * 3.2;
+      const direction = getDirection();
+      if (!direction) return;
+      state.playerX += direction.x * boostSpeed * boostDuration;
+      state.playerY += direction.y * boostSpeed * boostDuration;
+      clampPlayer();
+      updatePlayer();
+      leaveTrail();
+      if (objectives[state.objectiveIndex].type === "nodash") {
+        objectives[state.objectiveIndex].progress = 0;
+      }
+    }
+
+    function useShield() {
+      if (state.shieldCooldown > 0 || state.energy < 30) return;
+      state.shieldCooldown = 6;
+      state.energy -= 30;
+      state.shielded = true;
+      player.classList.add("shielded");
+      setTimeout(() => {
+        state.shielded = false;
+        player.classList.remove("shielded");
+      }, 3000);
+    }
+
+    function clampPlayer() {
+      const maxX = arena.clientWidth - player.clientWidth;
+      const maxY = arena.clientHeight - player.clientHeight;
+      state.playerX = Math.max(0, Math.min(state.playerX, maxX));
+      state.playerY = Math.max(0, Math.min(state.playerY, maxY));
+    }
+
+    function getDirection() {
+      let dx = 0;
+      let dy = 0;
+      if (keys.has("ArrowUp") || keys.has("w")) dy -= 1;
+      if (keys.has("ArrowDown") || keys.has("s")) dy += 1;
+      if (keys.has("ArrowLeft") || keys.has("a")) dx -= 1;
+      if (keys.has("ArrowRight") || keys.has("d")) dx += 1;
+      if (dx === 0 && dy === 0) return null;
+      const magnitude = Math.hypot(dx, dy) || 1;
+      return { x: dx / magnitude, y: dy / magnitude };
+    }
+
     function updateMeters() {
       aliveMeter.style.transform = `scaleX(${state.aliveChance})`;
       scoreEl.textContent = `${Math.floor(state.score)}`;
+      xpValue.textContent = `${Math.floor(state.xp)}`;
+      energyValue.textContent = `${Math.floor(state.energy)}`;
+      ageValue.textContent = `${state.age}`;
     }
 
     function tick(timestamp) {
@@ -652,17 +876,21 @@
 
       state.score += delta;
       state.aliveChance = Math.max(0, state.aliveChance - delta * 0.01);
+      state.energy = Math.min(100, state.energy + delta * 6);
+      state.dashCooldown = Math.max(0, state.dashCooldown - delta);
+      state.shieldCooldown = Math.max(0, state.shieldCooldown - delta);
+      state.slowTime = Math.max(0, state.slowTime - delta);
 
       state.hazardTimer += delta;
       state.pickupTimer += delta;
       state.difficultyTimer += delta;
 
-      if (state.hazardTimer > Math.max(0.6, 1.4 - state.score * 0.015)) {
+      if (state.hazardTimer > Math.max(0.5, 1.2 - state.score * 0.012)) {
         spawnHazard();
         state.hazardTimer = 0;
       }
 
-      if (state.pickupTimer > 4.2) {
+      if (state.pickupTimer > 3.6) {
         spawnPickup();
         state.pickupTimer = 0;
       }
@@ -671,6 +899,15 @@
         state.difficultyTimer = 0;
         alertTitle.textContent = "Intensity rising";
         alertText.textContent = "Hazards are getting faster. Keep moving.";
+      }
+
+      if (objectives[state.objectiveIndex].type === "nodash") {
+        objectives[state.objectiveIndex].progress =
+          (objectives[state.objectiveIndex].progress || 0) + delta;
+        if (objectives[state.objectiveIndex].progress >=
+            objectives[state.objectiveIndex].target) {
+          completeObjective();
+        }
       }
 
       setStage();
@@ -688,6 +925,13 @@
       state.active = true;
       state.score = 0;
       state.aliveChance = 1;
+      state.energy = 100;
+      state.xp = 0;
+      state.age = 0;
+      state.dashCooldown = 0;
+      state.shieldCooldown = 0;
+      state.shielded = false;
+      state.slowTime = 0;
       state.hazards.forEach((hazard) => hazard.remove());
       state.pickups.forEach((pickup) => pickup.remove());
       state.hazards = [];
@@ -697,11 +941,16 @@
       state.pickupTimer = 0;
       state.difficultyTimer = 0;
       state.streak = 0;
+      state.objectiveIndex = 0;
+      objectives.forEach((objective) => {
+        objective.progress = 0;
+      });
       state.stage = "baby";
       player.classList.remove("kid", "hero");
       player.classList.add("baby");
       alertTitle.textContent = "Breathe. Stay alive.";
       alertText.textContent = "Move the baby with WASD or arrow keys. Dodge hazards, collect shields.";
+      updateObjectiveText();
       startOverlay.classList.remove("active");
       gameOverOverlay.classList.remove("active");
       resetPlayerPosition();
@@ -723,6 +972,12 @@
     window.addEventListener("resize", handleResize);
     document.addEventListener("keydown", (event) => {
       keys.add(event.key);
+      if (event.key === " " && state.active) {
+        useDash();
+      }
+      if ((event.key === "e" || event.key === "E") && state.active) {
+        useShield();
+      }
     });
 
     document.addEventListener("keyup", (event) => {
