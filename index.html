@@ -3,41 +3,52 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Second Chance Sprint</title>
+  <title>Second Chance: Life Run</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap"
+    rel="stylesheet"
+  />
   <style>
     :root {
       color-scheme: dark;
       --bg: #04060f;
-      --panel: rgba(17, 22, 36, 0.88);
-      --accent: #ff2b4a;
-      --accent-soft: rgba(255, 43, 74, 0.24);
-      --good: #35ffa2;
-      --warn: #ffd25c;
-      --text: #f4f6ff;
-      --blue: #4cc2ff;
-      --purple: #7b6bff;
+      --panel: rgba(14, 18, 34, 0.9);
+      --accent: #ff3b5f;
+      --accent-soft: rgba(255, 59, 95, 0.25);
+      --good: #3dffb0;
+      --warn: #ffd064;
+      --text: #f6f7ff;
+      --blue: #62d5ff;
+      --purple: #846bff;
+      --shadow: rgba(3, 6, 18, 0.65);
     }
 
     * {
       box-sizing: border-box;
-      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
     }
 
     body {
       margin: 0;
       min-height: 100vh;
-      background: radial-gradient(circle at top, #1a1f37 0%, var(--bg) 55%);
+      background: radial-gradient(circle at top, #1b2038 0%, var(--bg) 58%);
       color: var(--text);
+      font-family: "Nunito", sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
     }
 
+    h1, h2, h3 {
+      font-family: "Space Grotesk", sans-serif;
+    }
+
     .stage {
-      width: min(1200px, 94vw);
+      width: min(1220px, 94vw);
       display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
+      grid-template-columns: 1.1fr 0.9fr;
       gap: 24px;
     }
 
@@ -45,52 +56,30 @@
     .hud {
       background: var(--panel);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 20px;
+      border-radius: 22px;
       padding: 22px;
-      box-shadow: 0 18px 40px rgba(2, 4, 14, 0.6);
-      backdrop-filter: blur(14px);
+      box-shadow: 0 18px 40px var(--shadow);
+      backdrop-filter: blur(16px);
       position: relative;
     }
 
     .scene {
-      min-height: 520px;
+      min-height: 560px;
       overflow: hidden;
-    }
-
-    .arena {
-      position: relative;
-      width: 100%;
-      height: 420px;
-      margin-top: 20px;
-      border-radius: 18px;
-      background: linear-gradient(145deg, rgba(14, 18, 34, 0.9), rgba(6, 9, 18, 0.92));
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      overflow: hidden;
-    }
-
-    .grid-lines {
-      position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-      background-size: 50px 50px;
-      opacity: 0.5;
-      pointer-events: none;
     }
 
     .glow {
       position: absolute;
       inset: -40%;
-      background: radial-gradient(circle, rgba(123, 107, 255, 0.25), transparent 60%);
-      opacity: 0.3;
-      animation: glow 3.8s ease-in-out infinite;
+      background: radial-gradient(circle, rgba(132, 107, 255, 0.3), transparent 60%);
+      opacity: 0.4;
+      animation: glow 4s ease-in-out infinite;
       pointer-events: none;
     }
 
     @keyframes glow {
-      0%, 100% { transform: scale(0.96); opacity: 0.28; }
-      50% { transform: scale(1.06); opacity: 0.5; }
+      0%, 100% { transform: scale(0.96); opacity: 0.3; }
+      50% { transform: scale(1.08); opacity: 0.6; }
     }
 
     .status-bar {
@@ -101,17 +90,17 @@
 
     .status-block {
       background: rgba(255, 255, 255, 0.05);
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 12px 14px;
       border: 1px solid rgba(255, 255, 255, 0.06);
     }
 
     .status-block h4 {
-      margin: 0 0 6px;
-      font-size: 0.72rem;
+      margin: 0 0 8px;
+      font-size: 0.7rem;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
-      opacity: 0.6;
+      letter-spacing: 0.14em;
+      opacity: 0.65;
     }
 
     .meter {
@@ -131,30 +120,30 @@
     }
 
     .value {
-      font-size: 1.1rem;
-      font-weight: 600;
+      font-size: 1.2rem;
+      font-weight: 700;
     }
 
     .stat-row {
       display: flex;
       justify-content: space-between;
       gap: 10px;
-      margin-top: 8px;
+      margin-top: 10px;
       font-size: 0.9rem;
       opacity: 0.85;
     }
 
     .stat-row span {
-      font-weight: 600;
+      font-weight: 700;
       color: var(--blue);
     }
 
     .alert {
       margin-top: 16px;
-      padding: 14px 16px;
-      border-radius: 14px;
-      background: rgba(255, 43, 74, 0.08);
-      border: 1px solid rgba(255, 43, 74, 0.35);
+      padding: 16px 18px;
+      border-radius: 16px;
+      background: rgba(255, 59, 95, 0.08);
+      border: 1px solid rgba(255, 59, 95, 0.35);
     }
 
     .alert h3 {
@@ -167,14 +156,49 @@
       line-height: 1.4;
     }
 
+    .objective {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(98, 213, 255, 0.12);
+      border: 1px solid rgba(98, 213, 255, 0.35);
+      font-size: 0.9rem;
+    }
+
+    .objective strong {
+      color: var(--blue);
+    }
+
+    .arena {
+      position: relative;
+      width: 100%;
+      height: 430px;
+      margin-top: 20px;
+      border-radius: 18px;
+      background: linear-gradient(145deg, rgba(10, 15, 30, 0.95), rgba(6, 9, 18, 0.95));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .grid-lines {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 50px 50px;
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
     .player {
       position: absolute;
       width: 56px;
       height: 56px;
-      border-radius: 16px;
-      background: radial-gradient(circle at 30% 20%, #ffe0c6, #f7b98b 65%);
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      box-shadow: 0 12px 18px rgba(0, 0, 0, 0.4);
+      border-radius: 18px;
+      background: radial-gradient(circle at 30% 20%, #ffe7d4, #f4b58a 70%);
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.45);
       display: grid;
       place-items: center;
       transition: transform 0.1s ease;
@@ -203,23 +227,29 @@
     .player .face::after { right: 5px; }
 
     .player.baby {
-      width: 52px;
-      height: 52px;
+      width: 50px;
+      height: 50px;
       border-radius: 18px;
-      background: radial-gradient(circle at 30% 20%, #ffe9dd, #ffbda3 65%);
+      background: radial-gradient(circle at 30% 20%, #fff0e5, #f9bba3 70%);
     }
 
     .player.kid {
-      width: 60px;
-      height: 60px;
-      background: radial-gradient(circle at 30% 20%, #ffd9b7, #f6a77d 65%);
+      width: 58px;
+      height: 58px;
+      background: radial-gradient(circle at 30% 20%, #ffd5b5, #f0a576 70%);
     }
 
-    .player.hero {
-      width: 64px;
-      height: 64px;
-      background: radial-gradient(circle at 30% 20%, #ffe1b9, #d99556 70%);
-      box-shadow: 0 0 20px rgba(255, 210, 92, 0.35);
+    .player.adult {
+      width: 62px;
+      height: 62px;
+      background: radial-gradient(circle at 30% 20%, #ffd7ac, #d4925c 70%);
+    }
+
+    .player.elder {
+      width: 66px;
+      height: 66px;
+      background: radial-gradient(circle at 30% 20%, #f5e1c9, #a97c50 70%);
+      box-shadow: 0 0 22px rgba(255, 208, 100, 0.35);
     }
 
     .player.boost {
@@ -227,66 +257,58 @@
     }
 
     .player.shielded {
-      box-shadow: 0 0 25px rgba(76, 194, 255, 0.8);
-      outline: 2px solid rgba(76, 194, 255, 0.8);
+      box-shadow: 0 0 28px rgba(98, 213, 255, 0.85);
+      outline: 2px solid rgba(98, 213, 255, 0.85);
     }
 
-    .hazard,
-    .pickup {
+    .orb {
       position: absolute;
       width: 28px;
       height: 28px;
-      border-radius: 10px;
-    }
-
-    .hazard {
-      background: linear-gradient(145deg, #ff5b6a, #b3132f);
-      box-shadow: 0 0 12px rgba(255, 43, 74, 0.7);
-    }
-
-    .hazard::after {
-      content: "";
-      position: absolute;
-      inset: 6px;
-      border-radius: 6px;
-      border: 1px dashed rgba(255, 255, 255, 0.4);
-    }
-
-    .pickup {
-      background: linear-gradient(145deg, #64d9ff, #2c7bff);
-      box-shadow: 0 0 12px rgba(76, 194, 255, 0.6);
-    }
-
-    .pickup.xp {
-      background: linear-gradient(145deg, #9cff8d, #2e9d3b);
-      box-shadow: 0 0 12px rgba(53, 255, 162, 0.6);
-    }
-
-    .pickup.xp::after {
-      background: rgba(255, 255, 255, 0.7);
-    }
-
-    .pickup.time {
-      background: linear-gradient(145deg, #c39bff, #6a3cff);
-      box-shadow: 0 0 12px rgba(123, 107, 255, 0.6);
-    }
-
-    .hazard.drone {
       border-radius: 50%;
-      background: linear-gradient(145deg, #ff8aa5, #ff2b4a);
     }
 
-    .hazard.spike {
-      border-radius: 6px;
-      transform: rotate(45deg);
+    .orb.good {
+      background: radial-gradient(circle at 30% 20%, #ffffff, #58ffd0 65%);
+      box-shadow: 0 0 14px rgba(61, 255, 176, 0.7);
     }
 
-    .pickup::after {
+    .orb.xp {
+      background: radial-gradient(circle at 30% 20%, #ffffff, #7bff8a 65%);
+      box-shadow: 0 0 14px rgba(61, 255, 176, 0.7);
+    }
+
+    .orb.time {
+      background: radial-gradient(circle at 30% 20%, #ffffff, #8b6bff 65%);
+      box-shadow: 0 0 14px rgba(132, 107, 255, 0.7);
+    }
+
+    .orb.energy {
+      background: radial-gradient(circle at 30% 20%, #ffffff, #62d5ff 65%);
+      box-shadow: 0 0 14px rgba(98, 213, 255, 0.7);
+    }
+
+    .orb.choice {
+      background: radial-gradient(circle at 30% 20%, #ffffff, #ffd064 65%);
+      box-shadow: 0 0 16px rgba(255, 208, 100, 0.7);
+    }
+
+    .orb.bad {
+      background: radial-gradient(circle at 30% 20%, #ff7a91, #c0163b 70%);
+      box-shadow: 0 0 16px rgba(255, 59, 95, 0.8);
+    }
+
+    .orb.curse {
+      background: radial-gradient(circle at 30% 20%, #ffb1c1, #6b1bb0 70%);
+      box-shadow: 0 0 16px rgba(132, 107, 255, 0.8);
+    }
+
+    .orb::after {
       content: "";
       position: absolute;
-      inset: 7px;
-      border-radius: 6px;
-      background: rgba(255, 255, 255, 0.6);
+      inset: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.7);
     }
 
     .trail {
@@ -294,7 +316,7 @@
       width: 12px;
       height: 12px;
       border-radius: 50%;
-      background: rgba(123, 107, 255, 0.4);
+      background: rgba(132, 107, 255, 0.4);
       animation: fade 0.6s linear forwards;
       pointer-events: none;
     }
@@ -306,7 +328,7 @@
 
     .hud h2 {
       margin-top: 0;
-      font-size: 1.7rem;
+      font-size: 1.8rem;
     }
 
     .controls {
@@ -327,6 +349,33 @@
       color: var(--blue);
     }
 
+    .legend {
+      margin-top: 14px;
+      display: grid;
+      gap: 10px;
+      font-size: 0.88rem;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legend i {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--good);
+      box-shadow: 0 0 8px rgba(61, 255, 176, 0.6);
+    }
+
+    .legend i.bad { background: var(--accent); box-shadow: 0 0 8px rgba(255, 59, 95, 0.6); }
+    .legend i.choice { background: var(--warn); box-shadow: 0 0 8px rgba(255, 208, 100, 0.6); }
+    .legend i.time { background: var(--purple); box-shadow: 0 0 8px rgba(132, 107, 255, 0.6); }
+    .legend i.energy { background: var(--blue); box-shadow: 0 0 8px rgba(98, 213, 255, 0.6); }
+
     .bonus-list {
       margin: 16px 0 0;
       padding: 0;
@@ -338,21 +387,22 @@
     .bonus-list li {
       padding: 10px 12px;
       border-radius: 12px;
-      background: rgba(123, 107, 255, 0.08);
-      border: 1px solid rgba(123, 107, 255, 0.4);
+      background: rgba(132, 107, 255, 0.08);
+      border: 1px solid rgba(132, 107, 255, 0.4);
       font-size: 0.88rem;
     }
 
     .overlay {
       position: fixed;
       inset: 0;
-      background: rgba(4, 6, 14, 0.88);
+      background: rgba(4, 6, 14, 0.9);
       display: flex;
       align-items: center;
       justify-content: center;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.2s ease;
+      z-index: 10;
     }
 
     .overlay.active {
@@ -364,10 +414,10 @@
       padding: 24px;
       text-align: center;
       border-radius: 16px;
-      background: rgba(10, 13, 24, 0.95);
+      background: rgba(10, 13, 24, 0.96);
       border: 1px solid rgba(255, 255, 255, 0.08);
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-      width: min(360px, 90vw);
+      width: min(420px, 92vw);
     }
 
     .panel button {
@@ -381,10 +431,26 @@
       cursor: pointer;
     }
 
+    .choice-panel {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .choice-panel button {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text);
+    }
+
+    .choice-panel button:hover {
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
     .flash {
       position: absolute;
       inset: 0;
-      background: rgba(255, 43, 74, 0.2);
+      background: rgba(255, 59, 95, 0.2);
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.1s ease;
@@ -392,19 +458,6 @@
 
     .flash.active {
       opacity: 1;
-    }
-
-    .objective {
-      margin-top: 14px;
-      padding: 12px 14px;
-      border-radius: 12px;
-      background: rgba(76, 194, 255, 0.08);
-      border: 1px solid rgba(76, 194, 255, 0.35);
-      font-size: 0.9rem;
-    }
-
-    .objective strong {
-      color: var(--blue);
     }
 
     @media (max-width: 960px) {
@@ -437,7 +490,7 @@
       </div>
       <div class="alert">
         <h3 id="alertTitle">Breathe. Stay alive.</h3>
-        <p id="alertText">Move with WASD or arrows. Dodge hazards, collect shields, and earn XP.</p>
+        <p id="alertText">Move with WASD or arrows. Dodge bad orbs, collect good ones.</p>
       </div>
       <div class="objective" id="objectiveText">
         <strong>Objective:</strong> Build a 10 XP streak without taking damage.
@@ -453,28 +506,36 @@
     </section>
 
     <section class="hud">
-      <h2>Second Chance Sprint</h2>
+      <h2>Second Chance: Life Run</h2>
       <p>
-        He starts as a baby. Keep him alive through relentless danger. Move fast, grab
-        shields, harvest XP, and use abilities to survive long enough to evolve into a hero.
+        He starts as a baby. Every decade changes your strengths and weaknesses. Choose
+        orbs wisely, trigger abilities, and survive a lifetime of chaos.
       </p>
       <div class="controls">
         <div class="control-card">
           <strong>Move:</strong> Arrow keys / WASD. Holding Shift gives a short burst.
         </div>
         <div class="control-card">
-          <strong>Abilities:</strong> <strong>Space</strong> dash (uses energy), <strong>E</strong>
-          shield (cooldown). Energy refills over time.
+          <strong>Abilities:</strong> <strong>Space</strong> dash, <strong>E</strong> shield,
+          <strong>Q</strong> focus (slows time). Energy refills over time.
         </div>
         <div class="control-card">
-          <strong>Goal:</strong> Dodge red hazards, collect blue shields and green XP to grow.
+          <strong>Strategy:</strong> Build XP, spend legacy points on perks, and balance
+          speed vs. stamina as you age.
         </div>
       </div>
+      <div class="legend">
+        <span><i></i> Good orbs: heal, XP, energy, time</span>
+        <span><i class="choice"></i> Choice orb: pick a reward or risk</span>
+        <span><i class="time"></i> Time orb: slows hazards briefly</span>
+        <span><i class="energy"></i> Energy orb: refill energy fast</span>
+        <span><i class="bad"></i> Bad orbs: damage, curses, confusion</span>
+      </div>
       <ul class="bonus-list">
-        <li>Survive longer to unlock new growth stages and faster movement.</li>
-        <li>Hazards speed up every 15 seconds for higher replay intensity.</li>
-        <li>Perfect streaks create a rescue pulse that clears nearby threats.</li>
-        <li>Complete rotating objectives for bonus XP and energy refills.</li>
+        <li>Real-life aging: speed peaks as a teen, stamina fades with age.</li>
+        <li>Life events appear at milestones and force tough decisions.</li>
+        <li>Earn legacy points to unlock perks that persist between runs.</li>
+        <li>Random modifiers make every run feel new.</li>
       </ul>
     </section>
   </main>
@@ -482,8 +543,25 @@
   <div class="overlay active" id="startOverlay">
     <div class="panel">
       <h3>Keep him alive.</h3>
-      <p>Every second matters. Ready to sprint the baby to safety?</p>
-      <button id="startBtn">Start Sprint</button>
+      <p>Every second matters. Build a legacy that lasts across runs.</p>
+      <div class="choice-panel" id="perkPanel"></div>
+      <button id="startBtn">Start Life Run</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="eventOverlay">
+    <div class="panel">
+      <h3 id="eventTitle">Life Event</h3>
+      <p id="eventText">Choose carefully.</p>
+      <div class="choice-panel" id="eventChoices"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="choiceOverlay">
+    <div class="panel">
+      <h3>Choice Orb</h3>
+      <p id="choiceText">Pick the reward that fits your strategy.</p>
+      <div class="choice-panel" id="choiceButtons"></div>
     </div>
   </div>
 
@@ -506,13 +584,23 @@
     const stageLabel = document.getElementById("stageLabel");
     const alertTitle = document.getElementById("alertTitle");
     const alertText = document.getElementById("alertText");
+    const objectiveText = document.getElementById("objectiveText");
     const flash = document.getElementById("flash");
     const startOverlay = document.getElementById("startOverlay");
+    const eventOverlay = document.getElementById("eventOverlay");
+    const eventTitle = document.getElementById("eventTitle");
+    const eventText = document.getElementById("eventText");
+    const eventChoices = document.getElementById("eventChoices");
+    const choiceOverlay = document.getElementById("choiceOverlay");
+    const choiceText = document.getElementById("choiceText");
+    const choiceButtons = document.getElementById("choiceButtons");
     const gameOverOverlay = document.getElementById("gameOverOverlay");
     const finalScore = document.getElementById("finalScore");
+    const perkPanel = document.getElementById("perkPanel");
     const startBtn = document.getElementById("startBtn");
     const restartBtn = document.getElementById("restartBtn");
 
+    const storageKey = "life-run-legacy";
     const state = {
       active: false,
       score: 0,
@@ -525,42 +613,131 @@
       speed: 220,
       dashCooldown: 0,
       shieldCooldown: 0,
+      focusCooldown: 0,
       shielded: false,
       slowTime: 0,
-      hazards: [],
-      pickups: [],
+      orbs: [],
       lastTime: null,
-      hazardTimer: 0,
-      pickupTimer: 0,
+      orbTimer: 0,
+      badOrbTimer: 0,
       difficultyTimer: 0,
       streak: 0,
       objectiveIndex: 0,
-      stage: "baby",
+      eventIndex: 0,
+      allowChoices: true,
+      perks: new Set(),
+      legacyPoints: 0,
+      modifier: null,
     };
 
     const stages = [
-      { name: "Baby", threshold: 0, className: "baby", speed: 210, age: 0 },
-      { name: "Toddler", threshold: 20, className: "kid", speed: 240, age: 2 },
-      { name: "Teen", threshold: 50, className: "kid", speed: 265, age: 12 },
-      { name: "Hero", threshold: 90, className: "hero", speed: 290, age: 20 },
-      { name: "Legend", threshold: 140, className: "hero", speed: 320, age: 30 },
+      { name: "Baby", start: 0, speed: 200, staminaDrain: 0.8 },
+      { name: "Toddler", start: 8, speed: 230, staminaDrain: 1 },
+      { name: "Teen", start: 16, speed: 270, staminaDrain: 1.2 },
+      { name: "Adult", start: 30, speed: 245, staminaDrain: 1.4 },
+      { name: "Elder", start: 60, speed: 220, staminaDrain: 1.7 },
     ];
 
     const objectives = [
       { text: "Build a 10 XP streak without taking damage.", target: 10, type: "streak" },
-      { text: "Collect 5 shields.", target: 5, type: "shields" },
-      { text: "Dodge 12 hazards in a row.", target: 12, type: "dodge" },
-      { text: "Survive 20 seconds without using dash.", target: 20, type: "nodash" },
+      { text: "Collect 6 good orbs in a row.", target: 6, type: "good" },
+      { text: "Dodge 14 bad orbs.", target: 14, type: "dodge" },
+      { text: "Survive 25 seconds without using dash.", target: 25, type: "nodash" },
     ];
 
-    const objectiveText = document.getElementById("objectiveText");
+    const events = [
+      {
+        age: 18,
+        title: "Scholarship Offer",
+        text: "Study for safety or chase risky glory?",
+        choices: [
+          { text: "Study", effect: () => gainStat("alive", 0.15) },
+          { text: "Chase glory", effect: () => gainStat("xp", 25) },
+        ],
+      },
+      {
+        age: 30,
+        title: "Career Crossroads",
+        text: "Stable job or adventurous path?",
+        choices: [
+          { text: "Stable", effect: () => gainStat("energy", 30) },
+          { text: "Adventure", effect: () => gainStat("speed", 15) },
+        ],
+      },
+      {
+        age: 45,
+        title: "Health Check",
+        text: "Invest in fitness or lean on luck?",
+        choices: [
+          { text: "Fitness", effect: () => gainStat("alive", 0.2) },
+          { text: "Luck", effect: () => gainStat("xp", 35) },
+        ],
+      },
+      {
+        age: 60,
+        title: "Legacy Moment",
+        text: "Share wisdom or hoard energy?",
+        choices: [
+          { text: "Share", effect: () => gainStat("legacy", 2) },
+          { text: "Hoard", effect: () => gainStat("energy", 40) },
+        ],
+      },
+    ];
+
+    const perks = [
+      { id: "starterShield", label: "Start with a shield", cost: 2 },
+      { id: "extraEnergy", label: "+15 max energy", cost: 2 },
+      { id: "slowDecay", label: "Slower survival drain", cost: 3 },
+      { id: "orbMagnet", label: "Orb magnet radius", cost: 3 },
+    ];
+
+    const modifiers = [
+      { name: "Stormfall", text: "Bad orbs spawn faster." },
+      { name: "Golden Hour", text: "Good orbs are more common." },
+      { name: "Low Gravity", text: "Everything moves a bit slower." },
+      { name: "High Stakes", text: "XP is doubled, damage is harsher." },
+    ];
 
     const keys = new Set();
 
+    function loadLegacy() {
+      const saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
+      state.legacyPoints = saved.legacyPoints || 0;
+      state.perks = new Set(saved.perks || []);
+    }
+
+    function saveLegacy() {
+      localStorage.setItem(storageKey, JSON.stringify({
+        legacyPoints: state.legacyPoints,
+        perks: Array.from(state.perks),
+      }));
+    }
+
+    function renderPerks() {
+      perkPanel.innerHTML = "";
+      const title = document.createElement("p");
+      title.textContent = `Legacy Points: ${state.legacyPoints}`;
+      perkPanel.appendChild(title);
+      perks.forEach((perk) => {
+        const button = document.createElement("button");
+        button.textContent = `${perk.label} (${perk.cost})`;
+        button.disabled = state.perks.has(perk.id) || state.legacyPoints < perk.cost;
+        button.addEventListener("click", () => {
+          if (state.legacyPoints >= perk.cost && !state.perks.has(perk.id)) {
+            state.legacyPoints -= perk.cost;
+            state.perks.add(perk.id);
+            saveLegacy();
+            renderPerks();
+          }
+        });
+        perkPanel.appendChild(button);
+      });
+    }
+
     function resetPlayerPosition() {
       const rect = arena.getBoundingClientRect();
-      state.playerX = rect.width / 2 - 26;
-      state.playerY = rect.height / 2 - 26;
+      state.playerX = rect.width / 2 - player.clientWidth / 2;
+      state.playerY = rect.height * 0.65 - player.clientHeight / 2;
       updatePlayer();
     }
 
@@ -569,73 +746,55 @@
       player.style.top = `${state.playerY}px`;
     }
 
-    function spawnHazard() {
-      const hazard = document.createElement("div");
-      const variants = ["hazard", "hazard drone", "hazard spike"];
-      const variant = variants[Math.floor(Math.random() * variants.length)];
-      hazard.className = variant;
+    function spawnOrb(type, className) {
+      const orb = document.createElement("div");
+      orb.className = `orb ${className}`;
+      orb.dataset.type = type;
       const size = 24 + Math.random() * 10;
-      hazard.style.width = `${size}px`;
-      hazard.style.height = `${size}px`;
-      const speedBoost = variant.includes("drone") ? 80 : variant.includes("spike") ? 40 : 0;
-      hazard.dataset.speed = (120 + Math.random() * 100 + speedBoost).toFixed(2);
-      hazard.style.left = `${Math.random() * (arena.clientWidth - size)}px`;
-      hazard.style.top = `-${size}px`;
-      arena.appendChild(hazard);
-      state.hazards.push(hazard);
+      orb.style.width = `${size}px`;
+      orb.style.height = `${size}px`;
+      orb.dataset.speed = (90 + Math.random() * 110).toFixed(2);
+      orb.style.left = `${Math.random() * (arena.clientWidth - size)}px`;
+      orb.style.top = `-${size}px`;
+      arena.appendChild(orb);
+      state.orbs.push(orb);
     }
 
-    function spawnPickup() {
-      const pickup = document.createElement("div");
+    function spawnGoodOrb() {
       const roll = Math.random();
-      if (roll < 0.55) {
-        pickup.className = "pickup";
-        pickup.dataset.type = "shield";
-      } else if (roll < 0.85) {
-        pickup.className = "pickup xp";
-        pickup.dataset.type = "xp";
-      } else {
-        pickup.className = "pickup time";
-        pickup.dataset.type = "time";
-      }
-      const size = 26;
-      pickup.style.width = `${size}px`;
-      pickup.style.height = `${size}px`;
-      pickup.dataset.speed = (80 + Math.random() * 60).toFixed(2);
-      pickup.style.left = `${Math.random() * (arena.clientWidth - size)}px`;
-      pickup.style.top = `-${size}px`;
-      arena.appendChild(pickup);
-      state.pickups.push(pickup);
+      if (roll < 0.35) return spawnOrb("heal", "good");
+      if (roll < 0.6) return spawnOrb("xp", "xp");
+      if (roll < 0.8) return spawnOrb("energy", "energy");
+      if (roll < 0.95) return spawnOrb("time", "time");
+      return spawnOrb("choice", "choice");
+    }
+
+    function spawnBadOrb() {
+      const roll = Math.random();
+      if (roll < 0.65) return spawnOrb("damage", "bad");
+      return spawnOrb("curse", "curse");
     }
 
     function setStage() {
       const stage = stages.reduce((current, next) =>
-        state.score >= next.threshold ? next : current
+        state.age >= next.start ? next : current
       );
-      if (state.stage !== stage.className) {
-        player.classList.remove(state.stage);
-        state.stage = stage.className;
-        player.classList.add(state.stage);
-      }
-      state.speed = stage.speed;
+      player.classList.remove("baby", "kid", "adult", "elder");
+      if (stage.name === "Baby") player.classList.add("baby");
+      if (stage.name === "Toddler" || stage.name === "Teen") player.classList.add("kid");
+      if (stage.name === "Adult") player.classList.add("adult");
+      if (stage.name === "Elder") player.classList.add("elder");
+      state.speed = stage.speed + (state.perks.has("orbMagnet") ? 10 : 0);
       stageLabel.textContent = stage.name;
-      state.age = stage.age;
     }
 
     function handleMovement(delta) {
-      const boost = keys.has("Shift") ? 1.4 : 1;
+      const boost = keys.has("Shift") ? 1.3 : 1;
       const speed = state.speed * boost;
-      let dx = 0;
-      let dy = 0;
-      if (keys.has("ArrowUp") || keys.has("w")) dy -= 1;
-      if (keys.has("ArrowDown") || keys.has("s")) dy += 1;
-      if (keys.has("ArrowLeft") || keys.has("a")) dx -= 1;
-      if (keys.has("ArrowRight") || keys.has("d")) dx += 1;
-
-      if (dx !== 0 || dy !== 0) {
-        const magnitude = Math.hypot(dx, dy) || 1;
-        state.playerX += (dx / magnitude) * speed * delta;
-        state.playerY += (dy / magnitude) * speed * delta;
+      const dir = getDirection();
+      if (dir) {
+        state.playerX += dir.x * speed * delta;
+        state.playerY += dir.y * speed * delta;
         player.classList.add("boost");
         leaveTrail();
       } else {
@@ -654,47 +813,81 @@
       setTimeout(() => trail.remove(), 600);
     }
 
-    function moveObjects(delta) {
-      const moveList = (list, isHazard) => {
-        list.forEach((item) => {
-          const slow = state.slowTime > 0 ? 0.5 : 1;
-          const speed = (Number(item.dataset.speed) + (state.score / 2)) * slow;
-          const nextTop = item.offsetTop + speed * delta;
-          item.style.top = `${nextTop}px`;
-          if (nextTop > arena.clientHeight + 40) {
-            item.remove();
-            item._remove = true;
-            if (isHazard) registerDodge();
+    function moveOrbs(delta) {
+      state.orbs.forEach((orb) => {
+        const slow = state.slowTime > 0 ? 0.55 : 1;
+        let speed = Number(orb.dataset.speed) * slow;
+        if (state.modifier?.name === "Low Gravity") speed *= 0.8;
+        if (orb.dataset.type === "damage" && state.modifier?.name === "High Stakes") {
+          speed *= 1.2;
+        }
+        orb.style.top = `${orb.offsetTop + speed * delta}px`;
+        if (orb.offsetTop > arena.clientHeight + 40) {
+          orb.remove();
+          orb._remove = true;
+          if (orb.dataset.type === "damage" || orb.dataset.type === "curse") {
+            registerObjective("dodge");
           }
-          if (checkCollision(item, player)) {
-            if (isHazard) {
-              handleHit(item);
-            } else {
-              handlePickup(item);
-            }
-          }
-        });
-      };
-
-      moveList(state.hazards, true);
-      moveList(state.pickups, false);
-
-      state.hazards = state.hazards.filter((item) => !item._remove);
-      state.pickups = state.pickups.filter((item) => !item._remove);
+        }
+        if (checkCollision(orb, player)) {
+          handleOrbPickup(orb);
+        }
+      });
+      state.orbs = state.orbs.filter((orb) => !orb._remove);
     }
 
     function checkCollision(a, b) {
       const aRect = a.getBoundingClientRect();
       const bRect = b.getBoundingClientRect();
+      const padding = state.perks.has("orbMagnet") ? 18 : 8;
       return !(
-        aRect.right < bRect.left + 8 ||
-        aRect.left > bRect.right - 8 ||
-        aRect.bottom < bRect.top + 8 ||
-        aRect.top > bRect.bottom - 8
+        aRect.right < bRect.left + padding ||
+        aRect.left > bRect.right - padding ||
+        aRect.bottom < bRect.top + padding ||
+        aRect.top > bRect.bottom - padding
       );
     }
 
-    function handleHit() {
+    function handleOrbPickup(orb) {
+      orb._remove = true;
+      orb.remove();
+      if (orb.dataset.type === "damage") {
+        handleHit();
+        return;
+      }
+      if (orb.dataset.type === "curse") {
+        state.energy = Math.max(0, state.energy - 20);
+        state.slowTime = 2;
+        handleHit(0.12);
+        return;
+      }
+      state.streak += 1;
+      registerObjective("good");
+      if (orb.dataset.type === "heal") {
+        state.aliveChance = Math.min(1, state.aliveChance + 0.18);
+        addXp(6);
+      }
+      if (orb.dataset.type === "xp") {
+        addXp(12);
+      }
+      if (orb.dataset.type === "energy") {
+        state.energy = Math.min(maxEnergy(), state.energy + 30);
+        addXp(6);
+      }
+      if (orb.dataset.type === "time") {
+        state.slowTime = 4;
+        addXp(8);
+      }
+      if (orb.dataset.type === "choice") {
+        openChoiceOrb();
+      }
+      if (state.streak >= 5) {
+        rescuePulse();
+        state.streak = 0;
+      }
+    }
+
+    function handleHit(amount = 0.25) {
       if (state.shielded) {
         state.shielded = false;
         player.classList.remove("shielded");
@@ -702,7 +895,8 @@
         setTimeout(() => flash.classList.remove("active"), 120);
         return;
       }
-      state.aliveChance -= 0.25;
+      const penalty = state.modifier?.name === "High Stakes" ? amount * 1.3 : amount;
+      state.aliveChance -= penalty;
       state.streak = 0;
       flash.classList.add("active");
       setTimeout(() => flash.classList.remove("active"), 120);
@@ -711,87 +905,58 @@
       }
     }
 
-    function handlePickup(pickup) {
-      pickup._remove = true;
-      pickup.remove();
-      if (pickup.dataset.type === "shield") {
-        state.aliveChance = Math.min(1, state.aliveChance + 0.2);
-        state.streak += 1;
-        addXp(6);
-        registerObjective("shields");
-      } else if (pickup.dataset.type === "xp") {
-        state.streak += 1;
-        addXp(10);
-      } else if (pickup.dataset.type === "time") {
-        state.slowTime = 4;
-        addXp(8);
-      }
-      if (state.streak >= 4) {
-        rescuePulse();
-        state.streak = 0;
-      }
-    }
-
     function rescuePulse() {
       alertTitle.textContent = "Rescue Pulse!";
-      alertText.textContent = "Perfect streak clears nearby hazards.";
+      alertText.textContent = "Your streak cleared nearby threats.";
       const playerRect = player.getBoundingClientRect();
-      state.hazards.forEach((hazard) => {
-        const hazardRect = hazard.getBoundingClientRect();
-        const distance = Math.hypot(
-          hazardRect.x - playerRect.x,
-          hazardRect.y - playerRect.y
-        );
-        if (distance < 140) {
-          hazard._remove = true;
-          hazard.remove();
+      state.orbs.forEach((orb) => {
+        if (orb.dataset.type === "damage" || orb.dataset.type === "curse") {
+          const orbRect = orb.getBoundingClientRect();
+          const distance = Math.hypot(orbRect.x - playerRect.x, orbRect.y - playerRect.y);
+          if (distance < 150) {
+            orb._remove = true;
+            orb.remove();
+          }
         }
       });
       setTimeout(() => {
         alertTitle.textContent = "Breathe. Stay alive.";
-        alertText.textContent = "Move the baby with WASD or arrow keys. Dodge hazards, collect shields.";
-      }, 1600);
+        alertText.textContent = "Move with WASD or arrows. Dodge bad orbs, collect good ones.";
+      }, 1500);
     }
 
     function addXp(amount) {
-      state.xp += amount;
+      const multiplier = state.modifier?.name === "High Stakes" ? 2 : 1;
+      state.xp += amount * multiplier;
       if (state.xp >= 100) {
-        state.xp = 0;
-        state.energy = Math.min(100, state.energy + 25);
+        state.xp -= 100;
+        state.energy = Math.min(maxEnergy(), state.energy + 20);
         state.aliveChance = Math.min(1, state.aliveChance + 0.1);
+        state.legacyPoints += 1;
+        saveLegacy();
       }
       registerObjective("streak");
     }
 
-    function registerDodge() {
-      registerObjective("dodge");
-    }
-
     function registerObjective(type) {
       const current = objectives[state.objectiveIndex];
-      if (current.type === "nodash") {
-        return;
-      }
+      if (current.type === "nodash") return;
       if (current.type === "streak" && type === "streak") {
-        current.progress = state.xp;
-        if (current.progress >= current.target) {
-          completeObjective();
-        }
-        return;
+        current.progress = state.streak;
       }
       if (current.type === type) {
         current.progress = (current.progress || 0) + 1;
-        if (current.progress >= current.target) {
-          completeObjective();
-        }
+      }
+      if ((current.progress || 0) >= current.target) {
+        completeObjective();
       }
     }
 
     function completeObjective() {
       const current = objectives[state.objectiveIndex];
       alertTitle.textContent = "Objective cleared!";
-      alertText.textContent = "Bonus energy and XP for smart play.";
-      state.energy = Math.min(100, state.energy + 30);
+      alertText.textContent = "Bonus energy + XP awarded.";
+      state.energy = Math.min(maxEnergy(), state.energy + 35);
       state.aliveChance = Math.min(1, state.aliveChance + 0.15);
       addXp(20);
       current.progress = 0;
@@ -799,8 +964,8 @@
       updateObjectiveText();
       setTimeout(() => {
         alertTitle.textContent = "Breathe. Stay alive.";
-        alertText.textContent = "Move the baby with WASD or arrow keys. Dodge hazards, collect shields.";
-      }, 1600);
+        alertText.textContent = "Move with WASD or arrows. Dodge bad orbs, collect good ones.";
+      }, 1500);
     }
 
     function updateObjectiveText() {
@@ -808,16 +973,67 @@
       objectiveText.innerHTML = `<strong>Objective:</strong> ${current.text}`;
     }
 
+    function openChoiceOrb() {
+      if (!state.allowChoices) return;
+      state.allowChoices = false;
+      choiceButtons.innerHTML = "";
+      const options = [
+        { label: "Instant heal +15%", action: () => gainStat("alive", 0.15) },
+        { label: "Energy refill +40", action: () => gainStat("energy", 40) },
+        { label: "XP surge +25", action: () => gainStat("xp", 25) },
+        { label: "Risk: double speed, -10% life", action: () => {
+          gainStat("speed", 20);
+          handleHit(0.1);
+        }},
+      ];
+      options.sort(() => Math.random() - 0.5).slice(0, 2).forEach((option) => {
+        const button = document.createElement("button");
+        button.textContent = option.label;
+        button.addEventListener("click", () => {
+          option.action();
+          choiceOverlay.classList.remove("active");
+          state.allowChoices = true;
+        });
+        choiceButtons.appendChild(button);
+      });
+      choiceOverlay.classList.add("active");
+    }
+
+    function triggerEvent(event) {
+      eventChoices.innerHTML = "";
+      eventTitle.textContent = event.title;
+      eventText.textContent = event.text;
+      event.choices.forEach((choice) => {
+        const button = document.createElement("button");
+        button.textContent = choice.text;
+        button.addEventListener("click", () => {
+          choice.effect();
+          eventOverlay.classList.remove("active");
+        });
+        eventChoices.appendChild(button);
+      });
+      eventOverlay.classList.add("active");
+    }
+
+    function gainStat(type, amount) {
+      if (type === "alive") state.aliveChance = Math.min(1, state.aliveChance + amount);
+      if (type === "energy") state.energy = Math.min(maxEnergy(), state.energy + amount);
+      if (type === "xp") addXp(amount);
+      if (type === "speed") state.speed += amount;
+      if (type === "legacy") {
+        state.legacyPoints += amount;
+        saveLegacy();
+      }
+    }
+
     function useDash() {
-      if (state.dashCooldown > 0 || state.energy < 20) return;
+      if (state.dashCooldown > 0 || state.energy < 18) return;
       state.dashCooldown = 1.4;
-      state.energy -= 20;
-      const boostDuration = 0.2;
-      const boostSpeed = state.speed * 3.2;
+      state.energy -= 18;
       const direction = getDirection();
       if (!direction) return;
-      state.playerX += direction.x * boostSpeed * boostDuration;
-      state.playerY += direction.y * boostSpeed * boostDuration;
+      state.playerX += direction.x * state.speed * 0.6;
+      state.playerY += direction.y * state.speed * 0.6;
       clampPlayer();
       updatePlayer();
       leaveTrail();
@@ -835,7 +1051,18 @@
       setTimeout(() => {
         state.shielded = false;
         player.classList.remove("shielded");
-      }, 3000);
+      }, 3200);
+    }
+
+    function useFocus() {
+      if (state.focusCooldown > 0 || state.energy < 24) return;
+      state.focusCooldown = 8;
+      state.energy -= 24;
+      state.slowTime = 3.5;
+    }
+
+    function maxEnergy() {
+      return state.perks.has("extraEnergy") ? 115 : 100;
     }
 
     function clampPlayer() {
@@ -862,7 +1089,7 @@
       scoreEl.textContent = `${Math.floor(state.score)}`;
       xpValue.textContent = `${Math.floor(state.xp)}`;
       energyValue.textContent = `${Math.floor(state.energy)}`;
-      ageValue.textContent = `${state.age}`;
+      ageValue.textContent = `${Math.floor(state.age)}`;
     }
 
     function tick(timestamp) {
@@ -872,42 +1099,57 @@
       state.lastTime = timestamp;
 
       handleMovement(delta);
-      moveObjects(delta);
+      moveOrbs(delta);
 
+      const stage = stages.find((item) => state.age >= item.start && (!item.end || state.age < item.end));
+      const staminaDrain = stage?.staminaDrain || 1;
       state.score += delta;
+      state.age += delta * 0.4;
       state.aliveChance = Math.max(0, state.aliveChance - delta * 0.01);
-      state.energy = Math.min(100, state.energy + delta * 6);
+      if (state.perks.has("slowDecay")) {
+        state.aliveChance = Math.max(0, state.aliveChance + delta * 0.004);
+      }
+      state.energy = Math.min(maxEnergy(), state.energy + delta * (5 - staminaDrain * 0.8));
       state.dashCooldown = Math.max(0, state.dashCooldown - delta);
       state.shieldCooldown = Math.max(0, state.shieldCooldown - delta);
+      state.focusCooldown = Math.max(0, state.focusCooldown - delta);
       state.slowTime = Math.max(0, state.slowTime - delta);
 
-      state.hazardTimer += delta;
-      state.pickupTimer += delta;
+      state.orbTimer += delta;
+      state.badOrbTimer += delta;
       state.difficultyTimer += delta;
 
-      if (state.hazardTimer > Math.max(0.5, 1.2 - state.score * 0.012)) {
-        spawnHazard();
-        state.hazardTimer = 0;
+      const goodRate = state.modifier?.name === "Golden Hour" ? 0.65 : 0.45;
+      const badRate = state.modifier?.name === "Stormfall" ? 0.6 : 0.4;
+
+      if (state.orbTimer > 1.1 - state.score * 0.002) {
+        if (Math.random() < goodRate) spawnGoodOrb();
+        state.orbTimer = 0;
       }
 
-      if (state.pickupTimer > 3.6) {
-        spawnPickup();
-        state.pickupTimer = 0;
+      if (state.badOrbTimer > 1.2 - state.score * 0.002) {
+        if (Math.random() < badRate) spawnBadOrb();
+        state.badOrbTimer = 0;
       }
 
       if (state.difficultyTimer > 15) {
         state.difficultyTimer = 0;
         alertTitle.textContent = "Intensity rising";
-        alertText.textContent = "Hazards are getting faster. Keep moving.";
+        alertText.textContent = "Bad orbs speed up. Keep moving.";
       }
 
       if (objectives[state.objectiveIndex].type === "nodash") {
         objectives[state.objectiveIndex].progress =
           (objectives[state.objectiveIndex].progress || 0) + delta;
-        if (objectives[state.objectiveIndex].progress >=
-            objectives[state.objectiveIndex].target) {
+        if (objectives[state.objectiveIndex].progress >= objectives[state.objectiveIndex].target) {
           completeObjective();
         }
+      }
+
+      const nextEvent = events[state.eventIndex];
+      if (nextEvent && state.age >= nextEvent.age) {
+        state.eventIndex += 1;
+        triggerEvent(nextEvent);
       }
 
       setStage();
@@ -925,34 +1167,46 @@
       state.active = true;
       state.score = 0;
       state.aliveChance = 1;
-      state.energy = 100;
+      state.energy = maxEnergy();
       state.xp = 0;
       state.age = 0;
       state.dashCooldown = 0;
       state.shieldCooldown = 0;
+      state.focusCooldown = 0;
       state.shielded = false;
       state.slowTime = 0;
-      state.hazards.forEach((hazard) => hazard.remove());
-      state.pickups.forEach((pickup) => pickup.remove());
-      state.hazards = [];
-      state.pickups = [];
+      state.orbs.forEach((orb) => orb.remove());
+      state.orbs = [];
       state.lastTime = null;
-      state.hazardTimer = 0;
-      state.pickupTimer = 0;
+      state.orbTimer = 0;
+      state.badOrbTimer = 0;
       state.difficultyTimer = 0;
       state.streak = 0;
       state.objectiveIndex = 0;
-      objectives.forEach((objective) => {
-        objective.progress = 0;
-      });
-      state.stage = "baby";
-      player.classList.remove("kid", "hero");
-      player.classList.add("baby");
-      alertTitle.textContent = "Breathe. Stay alive.";
-      alertText.textContent = "Move the baby with WASD or arrow keys. Dodge hazards, collect shields.";
+      state.eventIndex = 0;
+      state.allowChoices = true;
+      objectives.forEach((objective) => { objective.progress = 0; });
+
+      state.modifier = modifiers[Math.floor(Math.random() * modifiers.length)];
+      alertTitle.textContent = `Modifier: ${state.modifier.name}`;
+      alertText.textContent = state.modifier.text;
+
+      if (state.perks.has("starterShield")) {
+        state.shielded = true;
+        player.classList.add("shielded");
+        setTimeout(() => {
+          state.shielded = false;
+          player.classList.remove("shielded");
+        }, 2800);
+      } else {
+        player.classList.remove("shielded");
+      }
+
       updateObjectiveText();
       startOverlay.classList.remove("active");
       gameOverOverlay.classList.remove("active");
+      eventOverlay.classList.remove("active");
+      choiceOverlay.classList.remove("active");
       resetPlayerPosition();
       updateMeters();
       requestAnimationFrame(tick);
@@ -960,8 +1214,9 @@
 
     function endGame() {
       state.active = false;
-      finalScore.textContent = `You saved him for ${Math.floor(state.score)} seconds.`;
+      finalScore.textContent = `You saved him for ${Math.floor(state.score)} seconds and earned ${state.legacyPoints} legacy points.`;
       gameOverOverlay.classList.add("active");
+      saveLegacy();
     }
 
     function handleResize() {
@@ -978,6 +1233,9 @@
       if ((event.key === "e" || event.key === "E") && state.active) {
         useShield();
       }
+      if ((event.key === "q" || event.key === "Q") && state.active) {
+        useFocus();
+      }
     });
 
     document.addEventListener("keyup", (event) => {
@@ -987,8 +1245,9 @@
     startBtn.addEventListener("click", startGame);
     restartBtn.addEventListener("click", startGame);
 
+    loadLegacy();
+    renderPerks();
     resetPlayerPosition();
   </script>
 </body>
 </html>
-
