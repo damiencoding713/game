@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Second Chance Sprint</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #04060f;
+      --panel: rgba(17, 22, 36, 0.88);
+      --accent: #ff2b4a;
+      --accent-soft: rgba(255, 43, 74, 0.24);
+      --good: #35ffa2;
+      --warn: #ffd25c;
+      --text: #f4f6ff;
+      --blue: #4cc2ff;
+      --purple: #7b6bff;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #1a1f37 0%, var(--bg) 55%);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .stage {
+      width: min(1200px, 94vw);
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+    }
+
+    .scene,
+    .hud {
+      background: var(--panel);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: 0 18px 40px rgba(2, 4, 14, 0.6);
+      backdrop-filter: blur(14px);
+      position: relative;
+    }
+
+    .scene {
+      min-height: 520px;
+      overflow: hidden;
+    }
+
+    .arena {
+      position: relative;
+      width: 100%;
+      height: 420px;
+      margin-top: 20px;
+      border-radius: 18px;
+      background: linear-gradient(145deg, rgba(14, 18, 34, 0.9), rgba(6, 9, 18, 0.92));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .grid-lines {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 50px 50px;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .glow {
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle, rgba(123, 107, 255, 0.25), transparent 60%);
+      opacity: 0.3;
+      animation: glow 3.8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes glow {
+      0%, 100% { transform: scale(0.96); opacity: 0.28; }
+      50% { transform: scale(1.06); opacity: 0.5; }
+    }
+
+    .status-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .status-block {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 14px;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .status-block h4 {
+      margin: 0 0 6px;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      opacity: 0.6;
+    }
+
+    .meter {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .meter span {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, var(--good), var(--warn), var(--accent));
+      transform-origin: left;
+      transition: transform 0.2s ease;
+    }
+
+    .value {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .alert {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(255, 43, 74, 0.08);
+      border: 1px solid rgba(255, 43, 74, 0.35);
+    }
+
+    .alert h3 {
+      margin: 0 0 6px;
+    }
+
+    .alert p {
+      margin: 0;
+      opacity: 0.85;
+      line-height: 1.4;
+    }
+
+    .player {
+      position: absolute;
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: radial-gradient(circle at 30% 20%, #ffe0c6, #f7b98b 65%);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 12px 18px rgba(0, 0, 0, 0.4);
+      display: grid;
+      place-items: center;
+      transition: transform 0.1s ease;
+    }
+
+    .player .face {
+      width: 30px;
+      height: 18px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.12);
+      position: relative;
+    }
+
+    .player .face::before,
+    .player .face::after {
+      content: "";
+      position: absolute;
+      top: 4px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #201b1b;
+    }
+
+    .player .face::before { left: 5px; }
+    .player .face::after { right: 5px; }
+
+    .player.baby {
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+      background: radial-gradient(circle at 30% 20%, #ffe9dd, #ffbda3 65%);
+    }
+
+    .player.kid {
+      width: 60px;
+      height: 60px;
+      background: radial-gradient(circle at 30% 20%, #ffd9b7, #f6a77d 65%);
+    }
+
+    .player.hero {
+      width: 64px;
+      height: 64px;
+      background: radial-gradient(circle at 30% 20%, #ffe1b9, #d99556 70%);
+      box-shadow: 0 0 20px rgba(255, 210, 92, 0.35);
+    }
+
+    .player.boost {
+      transform: scale(1.08);
+    }
+
+    .hazard,
+    .pickup {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+    }
+
+    .hazard {
+      background: linear-gradient(145deg, #ff5b6a, #b3132f);
+      box-shadow: 0 0 12px rgba(255, 43, 74, 0.7);
+    }
+
+    .hazard::after {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border-radius: 6px;
+      border: 1px dashed rgba(255, 255, 255, 0.4);
+    }
+
+    .pickup {
+      background: linear-gradient(145deg, #64d9ff, #2c7bff);
+      box-shadow: 0 0 12px rgba(76, 194, 255, 0.6);
+    }
+
+    .pickup::after {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    .trail {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(123, 107, 255, 0.4);
+      animation: fade 0.6s linear forwards;
+      pointer-events: none;
+    }
+
+    @keyframes fade {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(2); opacity: 0; }
+    }
+
+    .hud h2 {
+      margin-top: 0;
+      font-size: 1.7rem;
+    }
+
+    .controls {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .control-card {
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.92rem;
+    }
+
+    .control-card strong {
+      color: var(--blue);
+    }
+
+    .bonus-list {
+      margin: 16px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .bonus-list li {
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(123, 107, 255, 0.08);
+      border: 1px solid rgba(123, 107, 255, 0.4);
+      font-size: 0.88rem;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 6, 14, 0.88);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .panel {
+      padding: 24px;
+      text-align: center;
+      border-radius: 16px;
+      background: rgba(10, 13, 24, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      width: min(360px, 90vw);
+    }
+
+    .panel button {
+      margin-top: 16px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .flash {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 43, 74, 0.2);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.1s ease;
+    }
+
+    .flash.active {
+      opacity: 1;
+    }
+
+    @media (max-width: 960px) {
+      .stage {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <section class="scene">
+      <div class="glow"></div>
+      <div class="status-bar">
+        <div class="status-block">
+          <h4>Alive chance</h4>
+          <div class="meter"><span id="aliveMeter"></span></div>
+        </div>
+        <div class="status-block">
+          <h4>Seconds saved</h4>
+          <div class="value" id="score">0</div>
+        </div>
+        <div class="status-block">
+          <h4>Stage</h4>
+          <div class="value" id="stageLabel">Baby</div>
+        </div>
+      </div>
+      <div class="alert">
+        <h3 id="alertTitle">Breathe. Stay alive.</h3>
+        <p id="alertText">Move the baby with WASD or arrow keys. Dodge hazards, collect shields.</p>
+      </div>
+
+      <div class="arena" id="arena">
+        <div class="grid-lines"></div>
+        <div class="flash" id="flash"></div>
+        <div class="player baby" id="player">
+          <div class="face"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="hud">
+      <h2>Second Chance Sprint</h2>
+      <p>
+        He starts as a baby. Keep him alive through relentless danger. Move fast, grab
+        shields, and survive long enough to evolve into a hero.
+      </p>
+      <div class="controls">
+        <div class="control-card">
+          <strong>Move:</strong> Arrow keys / WASD. Holding Shift gives a short burst.
+        </div>
+        <div class="control-card">
+          <strong>Goal:</strong> Dodge red hazards, collect blue shields to boost survival.
+        </div>
+      </div>
+      <ul class="bonus-list">
+        <li>Survive longer to unlock new growth stages and faster movement.</li>
+        <li>Hazards speed up every 15 seconds for higher replay intensity.</li>
+        <li>Perfect streaks create a rescue pulse that clears nearby threats.</li>
+      </ul>
+    </section>
+  </main>
+
+  <div class="overlay active" id="startOverlay">
+    <div class="panel">
+      <h3>Keep him alive.</h3>
+      <p>Every second matters. Ready to sprint the baby to safety?</p>
+      <button id="startBtn">Start Sprint</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="gameOverOverlay">
+    <div class="panel">
+      <h3>He didn't make it.</h3>
+      <p id="finalScore">You saved him for 0 seconds.</p>
+      <button id="restartBtn">Try Again</button>
+    </div>
+  </div>
+
+  <script>
+    const arena = document.getElementById("arena");
+    const player = document.getElementById("player");
+    const aliveMeter = document.getElementById("aliveMeter");
+    const scoreEl = document.getElementById("score");
+    const stageLabel = document.getElementById("stageLabel");
+    const alertTitle = document.getElementById("alertTitle");
+    const alertText = document.getElementById("alertText");
+    const flash = document.getElementById("flash");
+    const startOverlay = document.getElementById("startOverlay");
+    const gameOverOverlay = document.getElementById("gameOverOverlay");
+    const finalScore = document.getElementById("finalScore");
+    const startBtn = document.getElementById("startBtn");
+    const restartBtn = document.getElementById("restartBtn");
+
+    const state = {
+      active: false,
+      score: 0,
+      aliveChance: 1,
+      playerX: 0,
+      playerY: 0,
+      velocity: { x: 0, y: 0 },
+      speed: 220,
+      hazards: [],
+      pickups: [],
+      lastTime: null,
+      hazardTimer: 0,
+      pickupTimer: 0,
+      difficultyTimer: 0,
+      streak: 0,
+      stage: "baby",
+    };
+
+    const stages = [
+      { name: "Baby", threshold: 0, className: "baby", speed: 220 },
+      { name: "Toddler", threshold: 15, className: "kid", speed: 250 },
+      { name: "Hero", threshold: 45, className: "hero", speed: 280 },
+    ];
+
+    const keys = new Set();
+
+    function resetPlayerPosition() {
+      const rect = arena.getBoundingClientRect();
+      state.playerX = rect.width / 2 - 26;
+      state.playerY = rect.height / 2 - 26;
+      updatePlayer();
+    }
+
+    function updatePlayer() {
+      player.style.left = `${state.playerX}px`;
+      player.style.top = `${state.playerY}px`;
+    }
+
+    function spawnHazard() {
+      const hazard = document.createElement("div");
+      hazard.className = "hazard";
+      const size = 24 + Math.random() * 10;
+      hazard.style.width = `${size}px`;
+      hazard.style.height = `${size}px`;
+      hazard.dataset.speed = (120 + Math.random() * 100).toFixed(2);
+      hazard.style.left = `${Math.random() * (arena.clientWidth - size)}px`;
+      hazard.style.top = `-${size}px`;
+      arena.appendChild(hazard);
+      state.hazards.push(hazard);
+    }
+
+    function spawnPickup() {
+      const pickup = document.createElement("div");
+      pickup.className = "pickup";
+      const size = 26;
+      pickup.style.width = `${size}px`;
+      pickup.style.height = `${size}px`;
+      pickup.dataset.speed = (80 + Math.random() * 60).toFixed(2);
+      pickup.style.left = `${Math.random() * (arena.clientWidth - size)}px`;
+      pickup.style.top = `-${size}px`;
+      arena.appendChild(pickup);
+      state.pickups.push(pickup);
+    }
+
+    function setStage() {
+      const stage = stages.reduce((current, next) =>
+        state.score >= next.threshold ? next : current
+      );
+      if (state.stage !== stage.className) {
+        player.classList.remove(state.stage);
+        state.stage = stage.className;
+        player.classList.add(state.stage);
+      }
+      state.speed = stage.speed;
+      stageLabel.textContent = stage.name;
+    }
+
+    function handleMovement(delta) {
+      const boost = keys.has("Shift") ? 1.4 : 1;
+      const speed = state.speed * boost;
+      let dx = 0;
+      let dy = 0;
+      if (keys.has("ArrowUp") || keys.has("w")) dy -= 1;
+      if (keys.has("ArrowDown") || keys.has("s")) dy += 1;
+      if (keys.has("ArrowLeft") || keys.has("a")) dx -= 1;
+      if (keys.has("ArrowRight") || keys.has("d")) dx += 1;
+
+      if (dx !== 0 || dy !== 0) {
+        const magnitude = Math.hypot(dx, dy) || 1;
+        state.playerX += (dx / magnitude) * speed * delta;
+        state.playerY += (dy / magnitude) * speed * delta;
+        player.classList.add("boost");
+        leaveTrail();
+      } else {
+        player.classList.remove("boost");
+      }
+
+      const maxX = arena.clientWidth - player.clientWidth;
+      const maxY = arena.clientHeight - player.clientHeight;
+      state.playerX = Math.max(0, Math.min(state.playerX, maxX));
+      state.playerY = Math.max(0, Math.min(state.playerY, maxY));
+      updatePlayer();
+    }
+
+    function leaveTrail() {
+      const trail = document.createElement("div");
+      trail.className = "trail";
+      trail.style.left = `${state.playerX + player.clientWidth / 2}px`;
+      trail.style.top = `${state.playerY + player.clientHeight / 2}px`;
+      arena.appendChild(trail);
+      setTimeout(() => trail.remove(), 600);
+    }
+
+    function moveObjects(delta) {
+      const moveList = (list, isHazard) => {
+        list.forEach((item) => {
+          const speed = Number(item.dataset.speed) + (state.score / 2);
+          const nextTop = item.offsetTop + speed * delta;
+          item.style.top = `${nextTop}px`;
+          if (nextTop > arena.clientHeight + 40) {
+            item.remove();
+            item._remove = true;
+          }
+          if (checkCollision(item, player)) {
+            if (isHazard) {
+              handleHit();
+            } else {
+              handlePickup(item);
+            }
+          }
+        });
+      };
+
+      moveList(state.hazards, true);
+      moveList(state.pickups, false);
+
+      state.hazards = state.hazards.filter((item) => !item._remove);
+      state.pickups = state.pickups.filter((item) => !item._remove);
+    }
+
+    function checkCollision(a, b) {
+      const aRect = a.getBoundingClientRect();
+      const bRect = b.getBoundingClientRect();
+      return !(
+        aRect.right < bRect.left + 8 ||
+        aRect.left > bRect.right - 8 ||
+        aRect.bottom < bRect.top + 8 ||
+        aRect.top > bRect.bottom - 8
+      );
+    }
+
+    function handleHit() {
+      state.aliveChance -= 0.25;
+      state.streak = 0;
+      flash.classList.add("active");
+      setTimeout(() => flash.classList.remove("active"), 120);
+      if (state.aliveChance <= 0) {
+        endGame();
+      }
+    }
+
+    function handlePickup(pickup) {
+      pickup._remove = true;
+      pickup.remove();
+      state.aliveChance = Math.min(1, state.aliveChance + 0.18);
+      state.streak += 1;
+      if (state.streak >= 4) {
+        rescuePulse();
+        state.streak = 0;
+      }
+    }
+
+    function rescuePulse() {
+      alertTitle.textContent = "Rescue Pulse!";
+      alertText.textContent = "Perfect streak clears nearby hazards.";
+      const playerRect = player.getBoundingClientRect();
+      state.hazards.forEach((hazard) => {
+        const hazardRect = hazard.getBoundingClientRect();
+        const distance = Math.hypot(
+          hazardRect.x - playerRect.x,
+          hazardRect.y - playerRect.y
+        );
+        if (distance < 140) {
+          hazard._remove = true;
+          hazard.remove();
+        }
+      });
+      setTimeout(() => {
+        alertTitle.textContent = "Breathe. Stay alive.";
+        alertText.textContent = "Move the baby with WASD or arrow keys. Dodge hazards, collect shields.";
+      }, 1600);
+    }
+
+    function updateMeters() {
+      aliveMeter.style.transform = `scaleX(${state.aliveChance})`;
+      scoreEl.textContent = `${Math.floor(state.score)}`;
+    }
+
+    function tick(timestamp) {
+      if (!state.active) return;
+      if (!state.lastTime) state.lastTime = timestamp;
+      const delta = (timestamp - state.lastTime) / 1000;
+      state.lastTime = timestamp;
+
+      handleMovement(delta);
+      moveObjects(delta);
+
+      state.score += delta;
+      state.aliveChance = Math.max(0, state.aliveChance - delta * 0.01);
+
+      state.hazardTimer += delta;
+      state.pickupTimer += delta;
+      state.difficultyTimer += delta;
+
+      if (state.hazardTimer > Math.max(0.6, 1.4 - state.score * 0.015)) {
+        spawnHazard();
+        state.hazardTimer = 0;
+      }
+
+      if (state.pickupTimer > 4.2) {
+        spawnPickup();
+        state.pickupTimer = 0;
+      }
+
+      if (state.difficultyTimer > 15) {
+        state.difficultyTimer = 0;
+        alertTitle.textContent = "Intensity rising";
+        alertText.textContent = "Hazards are getting faster. Keep moving.";
+      }
+
+      setStage();
+      updateMeters();
+
+      if (state.aliveChance <= 0) {
+        endGame();
+        return;
+      }
+
+      requestAnimationFrame(tick);
+    }
+
+    function startGame() {
+      state.active = true;
+      state.score = 0;
+      state.aliveChance = 1;
+      state.hazards.forEach((hazard) => hazard.remove());
+      state.pickups.forEach((pickup) => pickup.remove());
+      state.hazards = [];
+      state.pickups = [];
+      state.lastTime = null;
+      state.hazardTimer = 0;
+      state.pickupTimer = 0;
+      state.difficultyTimer = 0;
+      state.streak = 0;
+      state.stage = "baby";
+      player.classList.remove("kid", "hero");
+      player.classList.add("baby");
+      alertTitle.textContent = "Breathe. Stay alive.";
+      alertText.textContent = "Move the baby with WASD or arrow keys. Dodge hazards, collect shields.";
+      startOverlay.classList.remove("active");
+      gameOverOverlay.classList.remove("active");
+      resetPlayerPosition();
+      updateMeters();
+      requestAnimationFrame(tick);
+    }
+
+    function endGame() {
+      state.active = false;
+      finalScore.textContent = `You saved him for ${Math.floor(state.score)} seconds.`;
+      gameOverOverlay.classList.add("active");
+    }
+
+    function handleResize() {
+      if (!state.active) return;
+      resetPlayerPosition();
+    }
+
+    window.addEventListener("resize", handleResize);
+    document.addEventListener("keydown", (event) => {
+      keys.add(event.key);
+    });
+
+    document.addEventListener("keyup", (event) => {
+      keys.delete(event.key);
+    });
+
+    startBtn.addEventListener("click", startGame);
+    restartBtn.addEventListener("click", startGame);
+
+    resetPlayerPosition();
+  </script>
+</body>
+</html>
